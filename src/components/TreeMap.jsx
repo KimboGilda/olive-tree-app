@@ -1,4 +1,19 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+
+
+function FlyToTree({ selectedTree }) {
+    const map = useMap();
+
+    useEffect(() => {
+        if (selectedTree) {
+            map.flyTo([selectedTree.lat, selectedTree.lng], 18, { duration: 1.2 })
+        }
+    }, [selectedTree, map])
+
+    return null
+};
+
 
 function MapClickHandler({ isAddMode, onMapClick }) {
     useMapEvents({
@@ -11,7 +26,7 @@ function MapClickHandler({ isAddMode, onMapClick }) {
     return null;
 }
 
-function TreeMap({ trees, isAddMode, onMapClick }) {
+function TreeMap({ trees, isAddMode, onMapClick, selectedTree }) {
     const centerPosition = [38.5266, 22.3794]
 
     return (
@@ -27,6 +42,7 @@ function TreeMap({ trees, isAddMode, onMapClick }) {
             />
 
             <MapClickHandler isAddMode={isAddMode} onMapClick={onMapClick} />
+            <FlyToTree selectedTree={selectedTree} />
 
             {trees.map((tree) => (
                 <Marker key={tree.id} position={[tree.lat, tree.lng]}>
