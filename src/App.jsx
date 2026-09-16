@@ -7,6 +7,7 @@ function App() {
   const [trees, setTrees] = useState([])
   const [isAddMode, setIsAddMode] = useState(false)
   const [selectedTree, setSelectedTree] = useState(null);
+  const [myLocation, setMyLocation] = useState(null)
 
   useEffect(() => {
     fetchTrees()
@@ -35,7 +36,28 @@ function App() {
     } else {
       fetchTrees()
     }
-  }
+  };
+
+  function handleCenterOnMe() {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.')
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setMyLocation({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          _t: Date.now(),
+        })
+      },
+      (error) => {
+        console.error('Geolocation error:', error)
+        alert('Could not get your location: ' + error.message)
+      }
+    )
+  };
 
   function handleAddTreeAtLocation() {
     if (!navigator.geolocation) {
@@ -57,7 +79,7 @@ function App() {
 
   function handleMapClick(latlng) {
     saveTree(latlng.lat, latlng.lng, 'manual')
-    setIsAddMode(false) // turn off add mode after placing one tree
+    setIsAddMode(false)
   }
 
   // Delete a tracked entry
@@ -72,7 +94,7 @@ function App() {
       alert('Failed to delete tree: ' + error.message)
     } else {
       if (selectedTree?.id === id) {
-        setSelectedTree(null) // clear selection if we just deleted the selected tree
+        setSelectedTree(null) // clear selection if we deleted the selectedTree
       }
       fetchTrees()
     }
@@ -97,6 +119,12 @@ function App() {
               }`}
           >
             {isAddMode ? 'Click map to place 🫒' : 'Add 🫒 on Map'}
+          </button>
+          <button
+            onClick={handleCenterOnMe}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          >
+            📍
           </button>
         </div>
       </header>
@@ -137,7 +165,8 @@ function App() {
             trees={trees}
             isAddMode={isAddMode}
             onMapClick={handleMapClick}
-            selectedTree={selectedTree} />
+            selectedTree={selectedTree}
+            myLocation={myLocation} />
         </main>
       </div>
     </div>

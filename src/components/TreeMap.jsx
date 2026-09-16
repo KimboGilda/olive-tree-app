@@ -14,6 +14,18 @@ function FlyToTree({ selectedTree }) {
     return null
 };
 
+function FlyToCoords({ coords }) {
+    const map = useMap()
+
+    useEffect(() => {
+        if (coords) {
+            map.flyTo([coords.lat, coords.lng], 17, { duration: 1.2 })
+        }
+    }, [coords, map])
+
+    return null
+}
+
 
 function MapClickHandler({ isAddMode, onMapClick }) {
     useMapEvents({
@@ -26,23 +38,30 @@ function MapClickHandler({ isAddMode, onMapClick }) {
     return null;
 }
 
-function TreeMap({ trees, isAddMode, onMapClick, selectedTree }) {
-    const centerPosition = [38.5266, 22.3794]
+function TreeMap({ trees, isAddMode, onMapClick, selectedTree, onDeleteTree, myLocation }) {
+    const centerPosition = [38.5266, 22.3794];
 
     return (
         <MapContainer
             center={centerPosition}
             zoom={15}
+            maxZoom={19}
             style={{ height: '100%', width: '100%' }}
             className="z-0"
         >
-            <TileLayer
+            {/* <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            /> */}
+            <TileLayer
+                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                attribution='Tiles &copy; Esri'
+                maxZoom={22}
             />
 
             <MapClickHandler isAddMode={isAddMode} onMapClick={onMapClick} />
             <FlyToTree selectedTree={selectedTree} />
+            <FlyToCoords coords={myLocation} />
 
             {trees.map((tree) => (
                 <Marker key={tree.id} position={[tree.lat, tree.lng]}>
