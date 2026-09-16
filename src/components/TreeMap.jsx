@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, LayersControl } from 'react-leaflet';
 
 
 function FlyToTree({ selectedTree }) {
@@ -19,7 +19,7 @@ function FlyToCoords({ coords }) {
 
     useEffect(() => {
         if (coords) {
-            map.flyTo([coords.lat, coords.lng], 17, { duration: 1.2 })
+            map.flyTo([coords.lat, coords.lng], 19, { duration: 1.2 })
         }
     }, [coords, map])
 
@@ -49,15 +49,23 @@ function TreeMap({ trees, isAddMode, onMapClick, selectedTree, onDeleteTree, myL
             style={{ height: '100%', width: '100%' }}
             className="z-0"
         >
-            {/* <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            /> */}
-            <TileLayer
-                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-                attribution='Tiles &copy; Esri'
-                maxZoom={22}
-            />
+            <LayersControl position="topright">
+                <LayersControl.BaseLayer checked name="Street Map">
+                    <TileLayer
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        maxZoom={19}
+                    />
+                </LayersControl.BaseLayer>
+
+                <LayersControl.BaseLayer name="Satellite">
+                    <TileLayer
+                        url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                        attribution='Tiles &copy; Esri'
+                        maxZoom={19}
+                    />
+                </LayersControl.BaseLayer>
+            </LayersControl>
 
             <MapClickHandler isAddMode={isAddMode} onMapClick={onMapClick} />
             <FlyToTree selectedTree={selectedTree} />

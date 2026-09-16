@@ -55,6 +55,11 @@ function App() {
       (error) => {
         console.error('Geolocation error:', error)
         alert('Could not get your location: ' + error.message)
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
       }
     )
   };
