@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import TreeMap from './components/TreeMap'
 import { supabase } from './supabaseClient'
+import EditTreeModal from './components/EditTreeModal'
 
 function App() {
   const [trees, setTrees] = useState([])
   const [isAddMode, setIsAddMode] = useState(false)
   const [selectedTree, setSelectedTree] = useState(null);
   const [myLocation, setMyLocation] = useState(null)
+  const [editTree, setEditTree] = useState(null);
 
   useEffect(() => {
     fetchTrees()
@@ -37,6 +39,38 @@ function App() {
       fetchTrees()
     }
   };
+
+  async function deleteTree(id) {
+    const confirmed = confirm('Delete this tree? This cannot be undone.')
+    if (!confirmed) return
+
+    const { error } = await supabase.from('trees').delete().eq('id', id)
+
+    if (error) {
+      console.error('Error deleting tree:', error)
+      alert('Failed to delete tree: ' + error.message)
+    } else {
+      if (selectedTree?.id === id) {
+        setSelectedTree(null) // clear selection if we deleted the selectedTree
+      }
+      fetchTrees()
+    }
+  }
+
+  async function updateTree(id, name) {
+
+    const result = await supabase.from('trees').update({ name }).eq('id', id);
+
+    if (result.error) {
+      console.error(`Error while updating the entry`, result.error)
+      alert('Failed to update tree: ' + result.error.message)
+    }
+    else {
+      fetchTrees()
+    }
+  }
+
+
 
   function handleCenterOnMe() {
     if (!navigator.geolocation) {
@@ -87,24 +121,6 @@ function App() {
     setIsAddMode(false)
   }
 
-  // Delete a tracked entry
-  async function deleteTree(id) {
-    const confirmed = confirm('Delete this tree? This cannot be undone.')
-    if (!confirmed) return
-
-    const { error } = await supabase.from('trees').delete().eq('id', id)
-
-    if (error) {
-      console.error('Error deleting tree:', error)
-      alert('Failed to delete tree: ' + error.message)
-    } else {
-      if (selectedTree?.id === id) {
-        setSelectedTree(null) // clear selection if we deleted the selectedTree
-      }
-      fetchTrees()
-    }
-  }
-
   return (
     <div className="h-screen w-screen flex flex-col">
       <header className="h-16 shrink-0 bg-white border-b border-gray-300 flex items-center px-4 justify-between gap-2">
@@ -153,12 +169,13 @@ function App() {
                   <span className="text-base">🫒</span>
                   <span className="truncate">{tree.name}</span>
                 </button>
+
                 <button
-                  onClick={() => deleteTree(tree.id)}
-                  className="shrink-0 text-gray-400 hover:text-red-600 p-2 rounded-md hover:bg-red-50 transition-colors"
-                  title="Delete tree"
+                  onClick={() => setEditTree(tree)}
+                  className="p-1 hover:bg-blue-80"
+                  title="Edit tree"
                 >
-                  ✕
+                  ✏️
                 </button>
               </li>
             ))}
@@ -173,6 +190,15 @@ function App() {
             selectedTree={selectedTree}
             myLocation={myLocation} />
         </main>
+
+        {editTree && (
+          <EditTreeModal
+            tree={editTree}
+            onClose={() => setEditTree(null)}
+            onSave={updateTree}
+            onDelete={deleteTree}
+          />
+        )}
       </div>
     </div>
   )
