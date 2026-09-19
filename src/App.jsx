@@ -172,7 +172,7 @@ function App() {
 
                 <button
                   onClick={() => setEditTree(tree)}
-                  className="p-1 hover:bg-blue-80"
+                  className="shrink-0 text-gray-300 hover:text-gray-500 p-1 rounded transition-colors text-xs"
                   title="Edit tree"
                 >
                   ✏️
