@@ -1,7 +1,15 @@
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap, LayersControl } from 'react-leaflet';
+import L from 'leaflet';
+import oliveIconImg from '../assets/olive_icon.png'
 
-
+// custom icon
+const oliveTreeIcon = L.icon({
+    iconUrl: oliveIconImg,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32],
+})
 function FlyToTree({ selectedTree }) {
     const map = useMap();
 
@@ -72,8 +80,18 @@ function TreeMap({ trees, isAddMode, onMapClick, selectedTree, onDeleteTree, myL
             <FlyToCoords coords={myLocation} />
 
             {trees.map((tree) => (
-                <Marker key={tree.id} position={[tree.lat, tree.lng]}>
-                    <Popup>{tree.name}</Popup>
+                <Marker key={tree.id} position={[tree.lat, tree.lng]} icon={oliveTreeIcon}>
+                    <Popup>
+                        <div className="flex flex-col gap-1">
+                            <span className="font-medium">{tree.name}</span>
+                            <button
+                                onClick={() => onDeleteTree(tree.id)}
+                                className="text-red-600 text-sm hover:underline text-left"
+                            >
+                                Delete tree
+                            </button>
+                        </div>
+                    </Popup>
                 </Marker>
             ))}
         </MapContainer>
