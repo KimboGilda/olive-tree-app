@@ -1,24 +1,28 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { Search, Loader2, X } from "lucide-react";
 
 function AddressSearch({ onSelectLocation }) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const debounceRef = useRef(null);
+  const skipSearchRef = useRef(false);
 
   useEffect(() => {
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
+    if (skipSearchRef.current) {
+      skipSearchRef.current = false;
+      return;
     }
 
     if (query.trim().length < 3) {
       setResults([]);
+      setIsLoading(false);
       return;
     }
 
-    debounceRef.current = setTimeout(async () => {
+    let cancelled = false;
+
+    const timer = setTimeout(async () => {
       setIsLoading(true);
       try {
         const res = await fetch(
@@ -27,16 +31,20 @@ function AddressSearch({ onSelectLocation }) {
           )}&limit=5`,
         );
         const data = await res.json();
+        if (cancelled) return;
         setResults(data);
         setIsOpen(true);
       } catch (err) {
         console.error("Geocoding error:", err);
       } finally {
-        setIsLoading(false);
+        if (!cancelled) setIsLoading(false);
       }
     }, 500);
 
-    return () => clearTimeout(debounceRef.current);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query]);
 
   function handleSelect(result) {
@@ -45,9 +53,17 @@ function AddressSearch({ onSelectLocation }) {
       lng: parseFloat(result.lon),
       _t: Date.now(),
     });
+    skipSearchRef.current = true;
     setQuery(result.display_name);
     setResults([]);
     setIsOpen(false);
+  }
+
+  function handleClear() {
+    setQuery("");
+    setResults([]);
+    setIsOpen(false);
+    setIsLoading(false);
   }
 
   return (
@@ -63,13 +79,24 @@ function AddressSearch({ onSelectLocation }) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setIsOpen(true)}
           placeholder="Search address…"
-          className="w-full pl-8 pr-7 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:bg-white"
+          className="w-full pl-8 pr-8 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-green-600 focus:bg-white"
         />
-        {isLoading && (
+        {isLoading ? (
           <Loader2
             size={13}
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 animate-spin"
           />
+        ) : (
+          query && (
+            <button
+              type="button"
+              onClick={handleClear}
+              aria-label="Clear search"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 p-1 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-200"
+            >
+              <X size={13} />
+            </button>
+          )
         )}
       </div>
 
