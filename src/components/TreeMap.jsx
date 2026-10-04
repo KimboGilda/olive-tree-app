@@ -61,6 +61,7 @@ function TreeMap({
   selectedTree,
   onEditTree,
   myLocation,
+  searchLocation,
 }) {
   const centerPosition = [38.5266, 22.3794];
 
@@ -99,6 +100,7 @@ function TreeMap({
       <MapClickHandler isAddMode={isAddMode} onMapClick={onMapClick} />
       <FlyToTree selectedTree={selectedTree} />
       <FlyToCoords coords={myLocation} />
+      <FlyToCoords coords={searchLocation} />
 
       {trees.map((tree) => (
         <Marker

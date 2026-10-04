@@ -4,6 +4,7 @@ import TreeMap from "./components/TreeMap";
 import { supabase } from "./supabaseClient";
 import EditTreeModal from "./components/EditTreeModal";
 import AddTreeModal from "./components/AddTreeModal";
+import AddressSearch from "./components/AddressSearch";
 import { LocateFixed, MapPinPlus, Pencil, Menu, X } from "lucide-react";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
   const [editTree, setEditTree] = useState(null);
   const [pendingLocation, setPendingLocation] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [searchLocation, setSearchLocation] = useState(null);
 
   useEffect(() => {
     fetchParcels();
@@ -166,7 +168,7 @@ function App() {
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-100">
       <header className="h-14 shrink-0 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 justify-between gap-2 shadow-sm z-10">
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => setIsSidebarOpen(true)}
             className="md:hidden text-gray-500 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-md transition-colors shrink-0"
@@ -174,15 +176,17 @@ function App() {
             <Menu size={20} />
           </button>
           <span className="text-xl leading-none shrink-0">🫒</span>
-          <h1 className="text-base font-semibold text-gray-800 tracking-tight truncate">
+          <h1 className="text-base font-semibold text-gray-800 tracking-tight truncate hidden sm:block">
             Olive Trees Tracker
           </h1>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        <div className="flex items-center gap-1.5 flex-1 min-w-0 justify-end">
+          <AddressSearch onSelectLocation={setSearchLocation} />
+
           <button
             onClick={handleAddTreeAtLocation}
-            className="flex items-center gap-1.5 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white px-2.5 sm:px-3 py-2 rounded-md text-xs font-medium transition-colors"
+            className="flex items-center gap-1.5 bg-green-700 hover:bg-green-800 active:bg-green-900 text-white px-2.5 sm:px-3 py-2 rounded-md text-xs font-medium transition-colors shrink-0"
           >
             <LocateFixed size={14} />
             <span className="hidden sm:inline">Add at My Location</span>
@@ -190,7 +194,7 @@ function App() {
 
           <button
             onClick={() => setIsAddMode(!isAddMode)}
-            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-md text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-2 rounded-md text-xs font-medium transition-colors shrink-0 ${
               isAddMode
                 ? "bg-amber-500 hover:bg-amber-600 text-white"
                 : "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
@@ -205,7 +209,7 @@ function App() {
           <button
             onClick={handleCenterOnMe}
             title="Center on my location"
-            className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white w-9 h-9 rounded-md transition-colors"
+            className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white w-9 h-9 rounded-md transition-colors shrink-0"
           >
             <LocateFixed size={14} />
           </button>
@@ -296,6 +300,7 @@ function App() {
             onMapClick={handleMapClick}
             selectedTree={selectedTree}
             myLocation={myLocation}
+            searchLocation={searchLocation}
             onEditTree={setEditTree}
           />
         </main>
