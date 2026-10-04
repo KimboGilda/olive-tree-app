@@ -166,7 +166,7 @@ function App() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-gray-100">
+    <div className="h-dvh w-dvw flex flex-col bg-gray-100">
       <header className="h-14 shrink-0 bg-white border-b border-gray-200 flex items-center px-3 sm:px-4 justify-between gap-2 shadow-sm z-10">
         <div className="flex items-center gap-2 shrink-0">
           <button
